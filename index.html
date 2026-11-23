@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>App Inatel — Suporte Financeiro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --inatel-blue: #0054A6;
+      --inatel-blue-dark: #003B75;
+      --inatel-blue-light: #E8F1FA;
+      --inatel-accent: #0077CC;
+      --bg-outer: #E2E8F0;
+      --bg-app: #F4F6F9;
+      --surface: #FFFFFF;
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --success: #15803D;
+      --success-bg: #DCFCE7;
+      --warning: #B45309;
+      --warning-bg: #FEF3C7;
+      --danger: #B91C1C;
+      --danger-bg: #FEE2E2;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 6px 20px rgba(0, 84, 166, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #CBD5E1 0%, #E2E8F0 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    /* Mobile App Shell */
+    .app-shell {
+      width: 100%;
+      max-width: 420px;
+      height: 820px;
+      max-height: 94vh;
+      background: var(--bg-app);
+      border-radius: 32px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22), 0 0 0 8px #1E293B;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+        background: var(--bg-app);
+        align-items: stretch;
+      }
+      .app-shell {
+        max-width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    /* Top Status + App Bar */
+    .app-header {
+      background: linear-gradient(135deg, var(--inatel-blue) 0%, var(--inatel-blue-dark) 100%);
+      color: #FFFFFF;
+      padding: 14px 18px 16px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.85;
+      margin-bottom: 10px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-back {
+      background: rgba(255, 255, 255, 0.16);
+      border: none;
+      color: #FFFFFF;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: background 0.2s;
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 255, 255, 0.26);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-mark {
+      background: #FFFFFF;
+      color: var(--inatel-blue);
+      font-weight: 800;
+      font-size: 13px;
+      padding: 4px 8px;
+      border-radius: 7px;
+      letter-spacing: 0.5px;
+    }
+
+    .header-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+
+    .avatar-chip {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Main Scrollable Content */
+    .app-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      scroll-behavior: smooth;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeSlide 0.22s ease-out;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards & Components */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+
+    .greeting-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+    }
+
+    .greeting-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .greeting-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-warning { background: var(--warning-bg); color: var(--warning); }
+    .badge-success { background: var(--success-bg); color: var(--success); }
+    .badge-info { background: var(--inatel-blue-light); color: var(--inatel-blue); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); }
+
+    /* Highlight Financial Card on Home */
+    .finance-hero {
+      border-left: 4px solid var(--inatel-blue);
+      box-shadow: var(--shadow-md);
+    }
+
+    .finance-hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .finance-hero-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--inatel-blue-dark);
+    }
+
+    .finance-hero-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin: 4px 0;
+    }
+
+    .finance-hero-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+
+    /* Quick Grid on Home */
+    .quick-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .quick-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .quick-item:hover {
+      border-color: var(--inatel-blue);
+      transform: translateY(-1px);
+    }
+
+    .quick-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--inatel-blue-light);
+      color: var(--inatel-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+
+    .quick-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .quick-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 13px 16px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.18s;
+    }
+
+    .btn-primary {
+      background: var(--inatel-blue);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background: var(--inatel-blue-dark);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #FFFFFF;
+    }
+
+    .btn-success:hover {
+      background: #166534;
+    }
+
+    .btn-outline {
+      background: var(--surface);
+      color: var(--inatel-blue);
+      border: 1.5px solid var(--inatel-blue);
+    }
+
+    .btn-outline:hover {
+      background: var(--inatel-blue-light);
+    }
+
+    .btn-ghost {
+      background: #F1F5F9;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      background: #E2E8F0;
+    }
+
+    .btn-whatsapp {
+      background: #16A34A;
+      color: #FFFFFF;
+    }
+
+    .btn-whatsapp:hover {
+      background: #15803D;
+    }
+
+    .btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    /* Month Tabs (B1) */
+    .month-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .month-tab {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .month-tab.active {
+      background: var(--inatel-blue);
+      border-color: var(--inatel-blue);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(0, 84, 166, 0.25);
+    }
+
+    .month-tab-name {
+      font-size: 13px;
+      font-weight: 700;
+      display: block;
+    }
+
+    .month-tab-status {
+      font-size: 10px;
+      font-weight: 600;
+      opacity: 0.85;
+      margin-top: 2px;
+      display: block;
+    }
+
+    /* Invoice Breakdown (B2) */
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    .invoice-id {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--inatel-blue);
+    }
+
+    .invoice-due {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .line-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      padding: 6px 0;
+      color: var(--text-secondary);
+    }
+
+    .line-item.discount {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .line-item.total {
+      border-top: 1.5px dashed var(--border);
+      margin-top: 8px;
+      padding-top: 12px;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .scholarship-pill {
+      background: var(--success-bg);
+      color: var(--success);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Payment Method Tabs (C1) */
+    .pay-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: #E2E8F0;
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+
+    .pay-tab {
+      border: none;
+      background: transparent;
+      padding: 9px 6px;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .pay-tab.active {
+      background: var(--surface);
+      color: var(--inatel-blue);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    }
+
+    .pay-panel {
+      display: none;
+    }
+
+    .pay-panel.active {
+      display: block;
+    }
+
+    .qr-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px;
+      background: #F8FAFC;
+      border: 1px dashed #94A3B8;
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+    }
+
+    .code-box {
+      width: 100%;
+      background: #F1F5F9;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: var(--text-primary);
+      word-break: break-all;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    /* Form Controls */
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 5px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 9px;
+      border: 1.5px solid var(--border);
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-primary);
+      background: var(--surface);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .form-control:focus {
+      border-color: var(--inatel-blue);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .auto-fill-box {
+      background: var(--inatel-blue-light);
+      border: 1px solid #BFDBFE;
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      margin-bottom: 14px;
+      font-size: 12px;
+      color: var(--inatel-blue-dark);
+    }
+
+    .auto-fill-box strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    /* Receipt Banner (D1) */
+    .success-banner {
+      background: linear-gradient(135deg, #16A34A 0%, #15803D 100%);
+      color: #FFFFFF;
+      border-radius: var(--radius-md);
+      padding: 18px 16px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .success-banner-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .receipt-card {
+      border-top: 4px solid var(--success);
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 7px 0;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    .receipt-row span:first-child {
+      color: var(--text-muted);
+    }
+
+    .receipt-row span:last-child {
+      font-weight: 700;
+      color: var(--text-primary);
+      text-align: right;
+    }
+
+    /* Protocol Confirmation */
+    .protocol-box {
+      background: var(--success-bg);
+      border: 1.5px dashed var(--success);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-top: 14px;
+      display: none;
+    }
+
+    .protocol-box.visible {
+      display: block;
+      animation: fadeSlide 0.25s ease-out;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 8px 6px 10px;
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      border: none;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .nav-item.active {
+      color: var(--inatel-blue);
+      font-weight: 700;
+    }
+
+    .nav-icon {
+      font-size: 18px;
+    }
+
+    /* Biometric Modal (A2) */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      width: 100%;
+      background: var(--surface);
+      border-radius: 24px 24px 0 0;
+      padding: 22px 20px 26px;
+      text-align: center;
+      animation: slideUp 0.22s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .bio-circle {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: var(--inatel-blue-light);
+      color: var(--inatel-blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 14px 0;
+      cursor: pointer;
+      border: 2px solid var(--inatel-blue);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .bio-circle:hover {
+      transform: scale(1.06);
+      background: var(--inatel-blue);
+      color: #FFFFFF;
+    }
+
+    /* Toast Feedback */
+    .toast {
+      position: absolute;
+      bottom: 76px;
+      left: 16px;
+      right: 16px;
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: all 0.22s ease;
+      z-index: 60;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.success {
+      background: #15803D;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2.5px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #FFFFFF;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .helper-text {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-muted);
+      margin: 6px 0 8px;
+    }
+
+    .protocol-mini-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--inatel-blue);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Bar -->
+    <header class="app-header">
+      <div class="status-bar">
+        <span id="clockText">09:41</span>
+        <span>5G • 100%</span>
+      </div>
+      <div class="header-row">
+        <div class="header-left">
+          <button id="btnBack" class="btn-back" style="display:none;" onclick="goBack()" aria-label="Voltar">&#8592;</button>
+          <div id="brandHome" class="brand-logo">
+            <span class="brand-mark">INATEL</span>
+            <span class="header-title">App Inatel</span>
+          </div>
+          <span id="screenTitle" class="header-title" style="display:none;">Suporte Financeiro</span>
+        </div>
+        <div class="avatar-chip" title="Lucas Mendes (Mat. 479)" onclick="navigateTo('screen-perfil')">LM</div>
+      </div>
+    </header>
+
+    <!-- Scrollable Screens -->
+    <main class="app-content">
+
+      <!-- TELA 1: HOME DO APP INATEL (HTA 1.1 > 1.2) -->
+      <section id="screen-home" class="screen active">
+        <div class="card greeting-card">
+          <div>
+            <div class="greeting-name">Olá, Lucas Mendes</div>
+            <div class="greeting-sub">Engenharia de Software • 6º Período • Mat. 479</div>
+          </div>
+          <span class="badge badge-info">Ativo</span>
+        </div>
+
+        <!-- Card A1: Atalho Suporte Financeiro -->
+        <div class="card finance-hero">
+          <div class="finance-hero-top">
+            <span class="finance-hero-title">Suporte Financeiro</span>
+            <span id="homeStatusBadge" class="badge badge-warning">Vencendo Hoje</span>
+          </div>
+          <div class="finance-hero-value" id="homeValueText">R$ 1.150,00</div>
+          <div class="finance-hero-meta" id="homeMetaText">
+            Mensalidade Nov/2026 • Vencimento 10/11/2026<br>
+            Bolsa Parcial (40%) + Pontualidade aplicados
+          </div>
+          <button class="btn btn-primary" onclick="openFinanceWithAuth()">
+            Acessar Extrato e Pagar &#8594;
+          </button>
+        </div>
+
+        <div class="section-label">Acesso Rápido Acadêmico</div>
+        <div class="quick-grid">
+          <div class="quick-item" onclick="showToast('Módulo Notas e Faltas: Média geral 8,7 (Regular).')">
+            <div class="quick-icon">📊</div>
+            <div class="quick-label">Notas e Faltas</div>
+            <div class="quick-desc">Semestre 2026/2</div>
+          </div>
+          <div class="quick-item" onclick="showToast('Próxima aula: S05 - IHM às 19h00 (Sala I-14).')">
+            <div class="quick-icon">🗓️</div>
+            <div class="quick-label">Horário de Aulas</div>
+            <div class="quick-desc">Hoje: 19h00 • I-14</div>
+          </div>
+          <div class="quick-item" onclick="showToast('Biblioteca: Nenhum empréstimo pendente.')">
+            <div class="quick-icon">📚</div>
+            <div class="quick-label">Biblioteca</div>
+            <div class="quick-desc">Situação regular</div>
+          </div>
+          <div class="quick-item" onclick="showToast('Carteirinha digital pronta para acesso ao campus.')">
+            <div class="quick-icon">🪪</div>
+            <div class="quick-label">Carteirinha</div>
+            <div class="quick-desc">QR Code ativo</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-size:13px; font-weight:700; margin-bottom:4px;">Aviso de Rematrícula 2027/1</div>
+          <p class="helper-text">
+            Pagamentos via <strong>Pix</strong> realizam baixa automática em segundos, garantindo a liberação imediata para sua rematrícula.
+          </p>
+        </div>
+      </section>
+
+      <!-- TELA 2: EXTRATO DA FATURA E BOLSA (HTA 2.1 > 2.2) -->
+      <section id="screen-finance" class="screen">
+        <!-- B1: Seletor de Competência -->
+        <div class="month-tabs">
+          <button class="month-tab" id="tab-out" onclick="selectMonth('out')">
+            <span class="month-tab-name">Out/26</span>
+            <span class="month-tab-status" id="tab-status-out">Paga</span>
+          </button>
+          <button class="month-tab active" id="tab-nov" onclick="selectMonth('nov')">
+            <span class="month-tab-name">Nov/26</span>
+            <span class="month-tab-status" id="tab-status-nov">Em Aberto</span>
+          </button>
+          <button class="month-tab" id="tab-dez" onclick="selectMonth('dez')">
+            <span class="month-tab-name">Dez/26</span>
+            <span class="month-tab-status" id="tab-status-dez">A Vencer</span>
+          </button>
+        </div>
+
+        <!-- B2: Quadro de Abatimentos Transparente -->
+        <div class="card">
+          <div class="invoice-header">
+            <div>
+              <div class="invoice-id" id="invIdText">FATURA #FAT-2026-11</div>
+              <div class="invoice-due" id="invDueText">Vencimento: 10/11/2026</div>
+            </div>
+            <span id="invStatusBadge" class="badge badge-warning">Em Aberto</span>
+          </div>
+
+          <div class="line-item">
+            <span>Mensalidade Bruta</span>
+            <span id="invBruto">R$ 2.100,00</span>
+          </div>
+          <div class="line-item discount">
+            <span>(-) Bolsa Parcial (40%)</span>
+            <span id="invBolsa">- R$ 840,00</span>
+          </div>
+          <div class="line-item discount">
+            <span>(-) Desconto de Pontualidade</span>
+            <span id="invPontualidade">- R$ 110,00</span>
+          </div>
+
+          <div class="scholarship-pill">
+            <span>✓</span>
+            <span>Bolsa Parcial 40% conferida e aplicada corretamente</span>
+          </div>
+
+          <div class="line-item total">
+            <span>Valor Líquido</span>
+            <span id="invLiquido">R$ 1.150,00</span>
+          </div>
+
+          <div id="agreementBanner" style="display:none; margin-top:10px;" class="auto-fill-box">
+            <strong>Acordo Digital Ativo</strong>
+            <span id="agreementBannerText"></span>
+          </div>
+        </div>
+
+        <!-- B3: Ações Principais e Gatilhos de Autoatendimento -->
+        <div class="btn-stack" id="financeActions">
+          <button class="btn btn-primary" id="btnGoPay" onclick="navigateTo('screen-payment')">
+            Realizar Pagamento
+          </button>
+          <button class="btn btn-success" id="btnViewReceipt" style="display:none;" onclick="navigateTo('screen-receipt')">
+            Visualizar Recibo de Quitação
+          </button>
+          <button class="btn btn-outline" id="btnGoAgreement" onclick="openAgreementScreen()">
+            Simular Acordo / Prorrogação
+          </button>
+          <button class="btn btn-ghost" onclick="openReportScreen()">
+            Reportar Erro na Bolsa ou Fatura
+          </button>
+        </div>
+
+        <!-- Lista de protocolos abertos pelo usuário -->
+        <div id="protocolsContainer" style="display:none; margin-top:14px;">
+          <div class="section-label">Meus Protocolos Financeiros</div>
+          <div id="protocolsList"></div>
+        </div>
+      </section>
+
+      <!-- TELA 3: CENTRAL DE PAGAMENTO RÁPIDO (HTA 3.1 > 3.2) -->
+      <section id="screen-payment" class="screen">
+        <div class="card" style="padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:12px; color:var(--text-muted);">Fatura selecionada</div>
+            <div style="font-size:14px; font-weight:700;" id="payInvoiceLabel">#FAT-2026-11 • Nov/2026</div>
+          </div>
+          <div style="font-size:18px; font-weight:800; color:var(--inatel-blue);" id="payAmountLabel">R$ 1.150,00</div>
+        </div>
+
+        <!-- C1: Abas Pix / Boleto / Cartão -->
+        <div class="pay-tabs">
+          <button class="pay-tab active" id="payTab-pix" onclick="selectPayTab('pix')">Pix (Rápido)</button>
+          <button class="pay-tab" id="payTab-boleto" onclick="selectPayTab('boleto')">Boleto</button>
+          <button class="pay-tab" id="payTab-cartao" onclick="selectPayTab('cartao')">Cartão</button>
+        </div>
+
+        <!-- Painel Pix -->
+        <div id="payPanel-pix" class="pay-panel active">
+          <div class="card">
+            <div class="qr-box">
+              <!-- Stylized SVG QR Code -->
+              <svg width="136" height="136" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="QR Code Pix">
+                <rect width="100" height="100" rx="8" fill="#FFFFFF"/>
+                <rect x="8" y="8" width="24" height="24" rx="3" stroke="#003B75" stroke-width="5"/>
+                <rect x="15" y="15" width="10" height="10" fill="#0054A6"/>
+                <rect x="68" y="8" width="24" height="24" rx="3" stroke="#003B75" stroke-width="5"/>
+                <rect x="75" y="15" width="10" height="10" fill="#0054A6"/>
+                <rect x="8" y="68" width="24" height="24" rx="3" stroke="#003B75" stroke-width="5"/>
+                <rect x="15" y="75" width="10" height="10" fill="#0054A6"/>
+                <rect x="40" y="10" width="8" height="8" fill="#0F172A"/>
+                <rect x="52" y="10" width="8" height="8" fill="#0F172A"/>
+                <rect x="40" y="24" width="12" height="8" fill="#0F172A"/>
+                <rect x="10" y="42" width="10" height="8" fill="#0F172A"/>
+                <rect x="26" y="42" width="8" height="14" fill="#0F172A"/>
+                <rect x="42" y="42" width="16" height="16" rx="3" fill="#0054A6"/>
+                <rect x="66" y="42" width="10" height="8" fill="#0F172A"/>
+                <rect x="82" y="42" width="10" height="16" fill="#0F172A"/>
+                <rect x="42" y="66" width="10" height="10" fill="#0F172A"/>
+                <rect x="58" y="66" width="14" height="8" fill="#0F172A"/>
+                <rect x="78" y="66" width="12" height="12" fill="#0F172A"/>
+                <rect x="42" y="82" width="22" height="8" fill="#0F172A"/>
+                <rect x="70" y="84" width="20" height="6" fill="#0F172A"/>
+              </svg>
+              <span class="badge badge-success" style="margin-top:10px;">Baixa bancária em segundos</span>
+            </div>
+
+            <div class="code-box" id="pixCodeString">
+              00020126580014BR.GOV.BCB.PIX0136inatel-financeiro-mat479-20261152040000530398654071150.005802BR5912INATEL FINAN6010SANTA RITA6304A9F2
+            </div>
+
+            <!-- C2: Botão 1 toque -->
+            <div class="btn-stack">
+              <button class="btn btn-primary" onclick="copyCode('pix')">
+                📋 Copiar Pix Copia e Cola
+              </button>
+              <button class="btn btn-success" id="btnSimulatePix" onclick="processPayment('Pix Instantâneo', 'btnSimulatePix')">
+                ✓ Simular Pagamento no Banco
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Painel Boleto -->
+        <div id="payPanel-boleto" class="pay-panel">
+          <div class="card">
+            <div style="font-size:13px; font-weight:700; margin-bottom:6px;">Linha Digitável do Boleto</div>
+            <p class="helper-text" style="margin-bottom:10px;">
+              Copie o código com um toque sem precisar abrir PDF. Compensação em até 2 dias úteis.
+            </p>
+            <div class="code-box" id="boletoCodeString">
+              00190.00009 03124.567801 47920.261108 1 98940000115000
+            </div>
+            <div class="btn-stack">
+              <button class="btn btn-primary" onclick="copyCode('boleto')">
+                📋 Copiar Código de Barras
+              </button>
+              <button class="btn btn-outline" onclick="showToast('Download do PDF do boleto iniciado.', true)">
+                📄 Baixar Boleto em PDF
+              </button>
+              <button class="btn btn-success" id="btnSimulateBoleto" onclick="processPayment('Boleto Bancário', 'btnSimulateBoleto')">
+                ✓ Simular Compensação do Boleto
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Painel Cartão -->
+        <div id="payPanel-cartao" class="pay-panel">
+          <div class="card">
+            <div class="form-group">
+              <label class="form-label">Número do Cartão</label>
+              <input type="text" class="form-control" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" value="5428 9910 4421 8832" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nome Impresso no Cartão</label>
+              <input type="text" class="form-control" id="cardName" value="LUCAS MENDES" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Validade</label>
+                <input type="text" class="form-control" id="cardExp" value="08/29" maxlength="5" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">CVV</label>
+                <input type="password" class="form-control" id="cardCvv" value="479" maxlength="4" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Parcelamento</label>
+              <select class="form-control" id="cardInstallments">
+                <option value="1x sem juros">1x de R$ 1.150,00 (sem juros)</option>
+                <option value="2x sem juros">2x de R$ 575,00 (sem juros)</option>
+                <option value="3x c/ taxa">3x de R$ 392,90 (taxa 2,5%)</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="btnSimulateCard" onclick="submitCardPayment()">
+              Autorizar Pagamento no Cartão
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TELA 4: RECIBO E QUITAÇÃO (HTA 4) -->
+      <section id="screen-receipt" class="screen">
+        <!-- D1: Banner de Quitação -->
+        <div class="success-banner">
+          <div class="success-banner-icon">✓</div>
+          <div style="font-size:17px; font-weight:800;">Fatura Paga com Sucesso!</div>
+          <div style="font-size:12.5px; opacity:0.92; margin-top:4px;">
+            Matrícula 479 Regularizada • Sem bloqueios para rematrícula
+          </div>
+        </div>
+
+        <div class="card receipt-card">
+          <div style="font-size:13px; font-weight:800; color:var(--inatel-blue-dark); margin-bottom:10px;" id="recNumber">
+            RECIBO OFICIAL #REC-9841
+          </div>
+          <div class="receipt-row">
+            <span>Aluno</span>
+            <span>Lucas Mendes (Mat. 479)</span>
+          </div>
+          <div class="receipt-row">
+            <span>Referência</span>
+            <span id="recRef">Mensalidade Nov/2026</span>
+          </div>
+          <div class="receipt-row">
+            <span>Modalidade</span>
+            <span id="recMethod">Pix Instantâneo</span>
+          </div>
+          <div class="receipt-row">
+            <span>Valor Quitado</span>
+            <span id="recValue" style="color:var(--success);">R$ 1.150,00</span>
+          </div>
+          <div class="receipt-row">
+            <span>Data e Hora</span>
+            <span id="recDate">10/11/2026 às 09:44</span>
+          </div>
+          <div class="receipt-row" style="border-bottom:none;">
+            <span>Autenticação</span>
+            <span style="font-family:monospace; font-size:11px;" id="recHash">AUTH-INATEL-884920-BR</span>
+          </div>
+        </div>
+
+        <!-- D2: Compartilhamento Rápido -->
+        <div class="btn-stack">
+          <button class="btn btn-whatsapp" onclick="shareWhatsApp()">
+            💬 Enviar Recibo via WhatsApp
+          </button>
+          <button class="btn btn-outline" onclick="showToast('Recibo oficial salvo em Downloads (PDF).', true)">
+            📄 Baixar Recibo em PDF
+          </button>
+          <button class="btn btn-ghost" onclick="navigateTo('screen-finance')">
+            Voltar ao Painel Financeiro
+          </button>
+        </div>
+      </section>
+
+      <!-- TELA 5: SIMULAR ACORDO / PRORROGAÇÃO (HTA 2.3) -->
+      <section id="screen-agreement" class="screen">
+        <div class="auto-fill-box">
+          <strong>Fatura Vinculada: <span id="agrInvoiceId">#FAT-2026-11</span></strong>
+          Bolsa Parcial (40%) mantida integralmente na simulação.
+        </div>
+
+        <div class="card">
+          <div class="form-group">
+            <label class="form-label">1. Escolher Nova Data de Vencimento</label>
+            <input type="date" class="form-control" id="agrDate" value="2026-11-25" min="2026-11-11" max="2026-12-20" onchange="recalculateAgreement()" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">2. Opção de Parcelamento</label>
+            <select class="form-control" id="agrParcels" onchange="recalculateAgreement()">
+              <option value="1">1x — Prorrogação Simples (+1,5% encargo)</option>
+              <option value="2">2x — Parcelamento Estudantil (+2,5% encargo)</option>
+              <option value="3">3x — Parcelamento Estendido (+4,0% encargo)</option>
+            </select>
+          </div>
+
+          <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:10px; padding:12px; margin-top:12px;">
+            <div style="font-size:12px; font-weight:700; color:var(--inatel-blue-dark); margin-bottom:6px;">Resumo da Simulação</div>
+            <div class="line-item">
+              <span>Valor com Bolsa 40% (sem pontualidade)</span>
+              <span>R$ 1.260,00</span>
+            </div>
+            <div class="line-item">
+              <span>Encargo de prorrogação</span>
+              <span id="agrFee">R$ 18,90</span>
+            </div>
+            <div class="line-item total">
+              <span>Novo Total</span>
+              <span id="agrTotal">R$ 1.278,90</span>
+            </div>
+            <div style="font-size:12px; color:var(--inatel-blue); font-weight:600; text-align:right;" id="agrParcelDetail">
+              1x de R$ 1.278,90 para 25/11/2026
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-stack">
+          <button class="btn btn-primary" id="btnConfirmAgreement" onclick="confirmAgreement()">
+            Confirmar Acordo Digital
+          </button>
+          <button class="btn btn-ghost" onclick="navigateTo('screen-finance')">
+            Cancelar e Voltar à Fatura
+          </button>
+        </div>
+      </section>
+
+      <!-- TELA 6: REPORTAR DIVERGÊNCIA / CHAMADO (HTA 5) -->
+      <section id="screen-report" class="screen">
+        <!-- F1: Preenchimento Automático -->
+        <div class="auto-fill-box">
+          <strong>Dados Vinculados Automaticamente</strong>
+          Aluno: Lucas Mendes (Matrícula: 479)<br>
+          Fatura Selecionada: <span id="repInvoiceId">#FAT-2026-11</span>
+        </div>
+
+        <div class="card">
+          <div class="form-group">
+            <label class="form-label">Motivo da Solicitação</label>
+            <select class="form-control" id="repReason">
+              <option value="Erro no percentual da Bolsa de Estudos">Erro no percentual da Bolsa de Estudos</option>
+              <option value="Desconto de pontualidade não aplicado">Desconto de pontualidade não aplicado</option>
+              <option value="Dúvida sobre cobrança ou taxa">Dúvida sobre cobrança ou taxa</option>
+              <option value="Solicitar negociação especial">Solicitar negociação especial</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Observações Adicionais</label>
+            <textarea class="form-control" id="repDesc" rows="3" placeholder="Descreva brevemente o ocorrido (ex: minha bolsa é de 40%, mas veio calculada diferente)..."></textarea>
+          </div>
+
+          <button class="btn btn-primary" id="btnSubmitProtocol" onclick="submitProtocol()">
+            Abrir Protocolo no App
+          </button>
+
+          <!-- F2: Feedback Imediato de Protocolo -->
+          <div class="protocol-box" id="protocolResult">
+            <div style="font-size:14px; font-weight:800; color:var(--success); margin-bottom:4px;" id="protoTitle">
+              ✓ PROTOCOLO #2026-992 ABERTO
+            </div>
+            <p style="font-size:12px; color:#14532D; margin-bottom:10px;">
+              Status: <strong>Em análise pelo Setor Financeiro</strong><br>
+              Previsão de retorno: até 24h úteis direto no aplicativo.
+            </p>
+            <button class="btn btn-outline" id="btnPushToggle" onclick="togglePush(this)" style="padding:9px 12px; font-size:12px;">
+              🔔 Ativar Notificação Push de Status
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TELA PERFIL (Apoio + Reset de Simulação para Avaliador) -->
+      <section id="screen-perfil" class="screen">
+        <div class="card" style="text-align:center;">
+          <div style="width:60px; height:60px; border-radius:50%; background:var(--inatel-blue); color:#fff; font-weight:800; font-size:20px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:10px;">LM</div>
+          <div style="font-size:16px; font-weight:800;">Lucas Mendes</div>
+          <div class="helper-text">Engenharia de Software • 6º Período • Matrícula 479</div>
+          <div style="margin-top:8px;">
+            <span class="badge badge-info">Bolsa Parcial 40% Ativa</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-size:13px; font-weight:700; margin-bottom:6px;">Sobre este Protótipo (S05 - IHM)</div>
+          <p class="helper-text" style="margin-bottom:12px;">
+            Funcionalidade de <strong>Suporte Financeiro</strong> desenvolvida por Igor Araújo (Mat. 479) para o Projeto Final da disciplina de Interface Homem-Máquina (Inatel).
+          </p>
+          <button class="btn btn-outline" onclick="resetSimulation()">
+            ↺ Resetar Simulação de Ponta a Ponta
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" id="nav-home" onclick="navigateTo('screen-home')">
+        <span class="nav-icon">🏠</span>
+        <span>Início</span>
+      </button>
+      <button class="nav-item" id="nav-finance" onclick="openFinanceWithAuth()">
+        <span class="nav-icon">💳</span>
+        <span>Financeiro</span>
+      </button>
+      <button class="nav-item" id="nav-acad" onclick="showToast('Aba Acadêmico: 6 disciplinas ativas em 2026/2.')">
+        <span class="nav-icon">🎓</span>
+        <span>Acadêmico</span>
+      </button>
+      <button class="nav-item" id="nav-perfil" onclick="navigateTo('screen-perfil')">
+        <span class="nav-icon">👤</span>
+        <span>Perfil</span>
+      </button>
+    </nav>
+
+    <!-- Modal A2: Autenticação Rápida por Biometria -->
+    <div class="modal-overlay" id="bioModal">
+      <div class="modal-sheet">
+        <span class="badge badge-info">Proteção Financeira</span>
+        <h3 style="font-size:17px; margin-top:8px;">Autenticação Rápida</h3>
+        <p class="helper-text" style="margin-top:4px;">
+          Confirme sua identidade com FaceID ou impressão digital para acessar suas faturas e bolsas.
+        </p>
+        <button class="bio-circle" id="bioTrigger" onclick="authenticateBiometric()" aria-label="Autenticar com Biometria">
+          👆
+        </button>
+        <div style="font-size:12px; font-weight:600; color:var(--inatel-blue); margin-bottom:14px;" id="bioStatusText">
+          Toque no ícone para autenticar
+        </div>
+        <button class="btn btn-ghost" onclick="closeBioModal()">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toastEl">
+      <span id="toastText">Mensagem</span>
+    </div>
+  </div>
+
+  <script>
+    // Estado central da aplicação (espelhando o Diagrama de Classes UML)
+    const initialInvoices = {
+      out: {
+        id: '#FAT-2026-10',
+        label: 'Out/2026',
+        due: '10/10/2026',
+        bruto: 2100.00,
+        bolsa: 840.00,
+        pontualidade: 110.00,
+        liquido: 1150.00,
+        status: 'Paga',
+        badgeClass: 'badge-success',
+        method: 'Pix Instantâneo',
+        paidAt: '08/10/2026 às 14:22',
+        receiptId: '#REC-9412',
+        hash: 'AUTH-INATEL-773104-BR',
+        agreementNote: ''
+      },
+      nov: {
+        id: '#FAT-2026-11',
+        label: 'Nov/2026',
+        due: '10/11/2026',
+        bruto: 2100.00,
+        bolsa: 840.00,
+        pontualidade: 110.00,
+        liquido: 1150.00,
+        status: 'Em Aberto',
+        badgeClass: 'badge-warning',
+        method: '',
+        paidAt: '',
+        receiptId: '#REC-9841',
+        hash: 'AUTH-INATEL-884920-BR',
+        agreementNote: ''
+      },
+      dez: {
+        id: '#FAT-2026-12',
+        label: 'Dez/2026',
+        due: '10/12/2026',
+        bruto: 2100.00,
+        bolsa: 840.00,
+        pontualidade: 110.00,
+        liquido: 1150.00,
+        status: 'A Vencer',
+        badgeClass: 'badge-info',
+        method: '',
+        paidAt: '',
+        receiptId: '#REC-9910',
+        hash: 'AUTH-INATEL-901244-BR',
+        agreementNote: ''
+      }
+    };
+
+    let state = {
+      authenticated: false,
+      currentScreen: 'screen-home',
+      history: [],
+      selectedMonth: 'nov',
+      invoices: JSON.parse(JSON.stringify(initialInvoices)),
+      protocols: []
+    };
+
+    const screenMeta = {
+      'screen-home': { title: 'App Inatel', isHome: true, nav: 'nav-home' },
+      'screen-finance': { title: 'Suporte Financeiro', isHome: false, nav: 'nav-finance' },
+      'screen-payment': { title: 'Quitar Mensalidade', isHome: false, nav: 'nav-finance' },
+      'screen-receipt': { title: 'Comprovante Oficial', isHome: false, nav: 'nav-finance' },
+      'screen-agreement': { title: 'Simular Prorrogação', isHome: false, nav: 'nav-finance' },
+      'screen-report': { title: 'Reportar Divergência', isHome: false, nav: 'nav-finance' },
+      'screen-perfil': { title: 'Meu Perfil', isHome: false, nav: 'nav-perfil' }
+    };
+
+    function formatBRL(val) {
+      return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function navigateTo(screenId, pushHistory = true) {
+      if (pushHistory && state.currentScreen !== screenId) {
+        state.history.push(state.currentScreen);
+      }
+      state.currentScreen = screenId;
+
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+
+      const meta = screenMeta[screenId];
+      document.getElementById('btnBack').style.display = meta.isHome ? 'none' : 'flex';
+      document.getElementById('brandHome').style.display = meta.isHome ? 'flex' : 'none';
+      document.getElementById('screenTitle').style.display = meta.isHome ? 'none' : 'inline';
+      document.getElementById('screenTitle').textContent = meta.title;
+
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      if (meta.nav) document.getElementById(meta.nav).classList.add('active');
+
+      document.querySelector('.app-content').scrollTop = 0;
+
+      if (screenId === 'screen-finance') renderFinanceScreen();
+      if (screenId === 'screen-payment') renderPaymentScreen();
+      if (screenId === 'screen-receipt') renderReceiptScreen();
+    }
+
+    function goBack() {
+      const prev = state.history.pop() || 'screen-home';
+      navigateTo(prev, false);
+    }
+
+    // HTA 1.1: Autenticação Biométrica
+    function openFinanceWithAuth() {
+      if (state.authenticated) {
+        navigateTo('screen-finance');
+      } else {
+        document.getElementById('bioStatusText').textContent = 'Toque no ícone para autenticar';
+        document.getElementById('bioModal').classList.add('open');
+      }
+    }
+
+    function closeBioModal() {
+      document.getElementById('bioModal').classList.remove('open');
+    }
+
+    function authenticateBiometric() {
+      const statusEl = document.getElementById('bioStatusText');
+      statusEl.textContent = 'Validando biometria...';
+      setTimeout(() => {
+        state.authenticated = true;
+        closeBioModal();
+        showToast('Identidade confirmada via biometria!', true);
+        navigateTo('screen-finance');
+      }, 550);
+    }
+
+    // HTA 2.1 e 2.2: Seleção de Mês e Extrato
+    function selectMonth(monthKey) {
+      state.selectedMonth = monthKey;
+      renderFinanceScreen();
+    }
+
+    function renderFinanceScreen() {
+      ['out', 'nov', 'dez'].forEach(k => {
+        const tab = document.getElementById('tab-' + k);
+        tab.classList.toggle('active', state.selectedMonth === k);
+        document.getElementById('tab-status-' + k).textContent = state.invoices[k].status;
+      });
+
+      const inv = state.invoices[state.selectedMonth];
+      document.getElementById('invIdText').textContent = 'FATURA ' + inv.id;
+      document.getElementById('invDueText').textContent = 'Vencimento: ' + inv.due;
+
+      const badge = document.getElementById('invStatusBadge');
+      badge.textContent = inv.status;
+      badge.className = 'badge ' + inv.badgeClass;
+
+      document.getElementById('invBruto').textContent = formatBRL(inv.bruto);
+      document.getElementById('invBolsa').textContent = '- ' + formatBRL(inv.bolsa);
+      document.getElementById('invPontualidade').textContent = inv.pontualidade > 0 ? '- ' + formatBRL(inv.pontualidade) : 'R$ 0,00';
+      document.getElementById('invLiquido').textContent = formatBRL(inv.liquido);
+
+      const agrBanner = document.getElementById('agreementBanner');
+      if (inv.agreementNote) {
+        agrBanner.style.display = 'block';
+        document.getElementById('agreementBannerText').textContent = inv.agreementNote;
+      } else {
+        agrBanner.style.display = 'none';
+      }
+
+      const isPaid = inv.status === 'Paga';
+      document.getElementById('btnGoPay').style.display = isPaid ? 'none' : 'inline-flex';
+      document.getElementById('btnGoAgreement').style.display = isPaid ? 'none' : 'inline-flex';
+      document.getElementById('btnViewReceipt').style.display = isPaid ? 'inline-flex' : 'none';
+
+      renderProtocolsList();
+      updateHomeCard();
+    }
+
+    function updateHomeCard() {
+      const nov = state.invoices.nov;
+      const badge = document.getElementById('homeStatusBadge');
+      const valEl = document.getElementById('homeValueText');
+      const metaEl = document.getElementById('homeMetaText');
+
+      valEl.textContent = formatBRL(nov.liquido);
+      if (nov.status === 'Paga') {
+        badge.textContent = 'Paga • Regularizada';
+        badge.className = 'badge badge-success';
+        metaEl.innerHTML = 'Mensalidade Nov/2026 quitada com sucesso<br>Matrícula 479 liberada para rematrícula';
+      } else if (nov.status === 'Acordo Ativo') {
+        badge.textContent = 'Acordo Confirmado';
+        badge.className = 'badge badge-info';
+        metaEl.innerHTML = 'Novo vencimento: ' + nov.due + '<br>Bolsa Parcial (40%) mantida no acordo';
+      } else {
+        badge.textContent = 'Vencendo Hoje';
+        badge.className = 'badge badge-warning';
+        metaEl.innerHTML = 'Mensalidade Nov/2026 • Vencimento ' + nov.due + '<br>Bolsa Parcial (40%) + Pontualidade aplicados';
+      }
+    }
+
+    // HTA 3.1 e 3.2: Pagamento
+    function renderPaymentScreen() {
+      const inv = state.invoices[state.selectedMonth];
+      document.getElementById('payInvoiceLabel').textContent = inv.id + ' • ' + inv.label;
+      document.getElementById('payAmountLabel').textContent = formatBRL(inv.liquido);
+    }
+
+    function selectPayTab(tab) {
+      ['pix', 'boleto', 'cartao'].forEach(t => {
+        document.getElementById('payTab-' + t).classList.toggle('active', t === tab);
+        document.getElementById('payPanel-' + t).classList.toggle('active', t === tab);
+      });
+    }
+
+    function copyCode(type) {
+      const text = type === 'pix'
+        ? document.getElementById('pixCodeString').textContent.trim()
+        : document.getElementById('boletoCodeString').textContent.trim();
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => {});
+      }
+      const label = type === 'pix' ? 'Código Pix copiado com sucesso!' : 'Linha digitável copiada com sucesso!';
+      showToast('✓ ' + label, true);
+    }
+
+    function submitCardPayment() {
+      const num = document.getElementById('cardNumber').value.trim();
+      const cvv = document.getElementById('cardCvv').value.trim();
+      const inst = document.getElementById('cardInstallments').value;
+      if (num.length < 12 || cvv.length < 3) {
+        showToast('Verifique o número do cartão e o CVV.');
+        return;
+      }
+      processPayment('Cartão de Crédito (' + inst + ')', 'btnSimulateCard');
+    }
+
+    function processPayment(methodLabel, btnId) {
+      const btn = document.getElementById(btnId);
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Processando confirmação...';
+
+      setTimeout(() => {
+        const inv = state.invoices[state.selectedMonth];
+        inv.status = 'Paga';
+        inv.badgeClass = 'badge-success';
+        inv.method = methodLabel;
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        inv.paidAt = 'Hoje às ' + hh + ':' + mm;
+
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        updateHomeCard();
+        showToast('Baixa bancária confirmada com sucesso!', true);
+        navigateTo('screen-receipt');
+      }, 900);
+    }
+
+    // HTA 4: Recibo
+    function renderReceiptScreen() {
+      const inv = state.invoices[state.selectedMonth];
+      document.getElementById('recNumber').textContent = 'RECIBO OFICIAL ' + inv.receiptId;
+      document.getElementById('recRef').textContent = 'Mensalidade ' + inv.label;
+      document.getElementById('recMethod').textContent = inv.method || 'Pix Instantâneo';
+      document.getElementById('recValue').textContent = formatBRL(inv.liquido);
+      document.getElementById('recDate').textContent = inv.paidAt || '10/11/2026 às 09:44';
+      document.getElementById('recHash').textContent = inv.hash;
+    }
+
+    function shareWhatsApp() {
+      const inv = state.invoices[state.selectedMonth];
+      showToast('Abrindo WhatsApp com recibo ' + inv.receiptId + ' (' + formatBRL(inv.liquido) + ')...', true);
+    }
+
+    // HTA 2.3: Simulador de Acordo
+    function openAgreementScreen() {
+      const inv = state.invoices[state.selectedMonth];
+      document.getElementById('agrInvoiceId').textContent = inv.id;
+      recalculateAgreement();
+      navigateTo('screen-agreement');
+    }
+
+    function recalculateAgreement() {
+      const baseWithScholarship = 1260.00; // 2100 - 40% bolsa (840)
+      const parcels = parseInt(document.getElementById('agrParcels').value, 10);
+      const dateStr = document.getElementById('agrDate').value;
+      const rateMap = { 1: 0.015, 2: 0.025, 3: 0.04 };
+      const fee = baseWithScholarship * rateMap[parcels];
+      const total = baseWithScholarship + fee;
+      const perParcel = total / parcels;
+
+      const formattedDate = dateStr ? dateStr.split('-').reverse().join('/') : '25/11/2026';
+      document.getElementById('agrFee').textContent = formatBRL(fee);
+      document.getElementById('agrTotal').textContent = formatBRL(total);
+      document.getElementById('agrParcelDetail').textContent =
+        parcels + 'x de ' + formatBRL(perParcel) + ' • 1ª parcela em ' + formattedDate;
+    }
+
+    function confirmAgreement() {
+      const btn = document.getElementById('btnConfirmAgreement');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Registrando acordo...';
+
+      setTimeout(() => {
+        const inv = state.invoices[state.selectedMonth];
+        const parcels = parseInt(document.getElementById('agrParcels').value, 10);
+        const dateStr = document.getElementById('agrDate').value;
+        const formattedDate = dateStr ? dateStr.split('-').reverse().join('/') : '25/11/2026';
+        const rateMap = { 1: 0.015, 2: 0.025, 3: 0.04 };
+        const newTotal = 1260.00 * (1 + rateMap[parcels]);
+
+        inv.due = formattedDate;
+        inv.pontualidade = 0;
+        inv.liquido = newTotal;
+        inv.status = 'Acordo Ativo';
+        inv.badgeClass = 'badge-info';
+        inv.agreementNote = parcels + 'x de ' + formatBRL(newTotal / parcels) + ' com vencimento em ' + formattedDate + '.';
+
+        btn.disabled = false;
+        btn.innerHTML = 'Confirmar Acordo Digital';
+        showToast('Acordo digital confirmado com sucesso!', true);
+        navigateTo('screen-finance');
+      }, 750);
+    }
+
+    // HTA 5: Reportar Divergência
+    function openReportScreen() {
+      const inv = state.invoices[state.selectedMonth];
+      document.getElementById('repInvoiceId').textContent = inv.id;
+      document.getElementById('repDesc').value = '';
+      document.getElementById('protocolResult').classList.remove('visible');
+      navigateTo('screen-report');
+    }
+
+    function submitProtocol() {
+      const reason = document.getElementById('repReason').value;
+      const desc = document.getElementById('repDesc').value.trim();
+      const inv = state.invoices[state.selectedMonth];
+
+      if (!desc) {
+        showToast('Por favor, escreva uma breve observação sobre a divergência.');
+        document.getElementById('repDesc').focus();
+        return;
+      }
+
+      const btn = document.getElementById('btnSubmitProtocol');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Gerando protocolo...';
+
+      setTimeout(() => {
+        const protoNum = '#2026-' + (992 + state.protocols.length);
+        state.protocols.unshift({
+          number: protoNum,
+          invoiceId: inv.id,
+          reason: reason,
+          status: 'Em análise pelo Financeiro'
+        });
+
+        document.getElementById('protoTitle').textContent = '✓ PROTOCOLO ' + protoNum + ' ABERTO';
+        document.getElementById('protocolResult').classList.add('visible');
+        btn.disabled = false;
+        btn.innerHTML = 'Abrir Protocolo no App';
+        showToast('Protocolo ' + protoNum + ' vinculado à fatura ' + inv.id + '!', true);
+      }, 650);
+    }
+
+    function togglePush(btn) {
+      btn.textContent = '✓ Notificações Push Ativadas';
+      btn.classList.remove('btn-outline');
+      btn.classList.add('btn-success');
+      showToast('Você será notificado assim que o financeiro responder.', true);
+    }
+
+    function renderProtocolsList() {
+      const container = document.getElementById('protocolsContainer');
+      const list = document.getElementById('protocolsList');
+      if (state.protocols.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+      container.style.display = 'block';
+      list.innerHTML = state.protocols.map(p => `
+        <div class="protocol-mini-card">
+          <div style="display:flex; justify-content:space-between; font-weight:700; margin-bottom:2px;">
+            <span>Protocolo ${p.number} (${p.invoiceId})</span>
+            <span style="color:var(--inatel-blue);">${p.status}</span>
+          </div>
+          <div style="color:var(--text-secondary);">${p.reason}</div>
+        </div>
+      `).join('');
+    }
+
+    // Toast feedback helper
+    let toastTimer;
+    function showToast(msg, isSuccess = false) {
+      const el = document.getElementById('toastEl');
+      document.getElementById('toastText').textContent = msg;
+      el.className = 'toast show' + (isSuccess ? ' success' : '');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+    }
+
+    // Reset para testes
+    function resetSimulation() {
+      state.authenticated = false;
+      state.selectedMonth = 'nov';
+      state.invoices = JSON.parse(JSON.stringify(initialInvoices));
+      state.protocols = [];
+      state.history = [];
+      updateHomeCard();
+      navigateTo('screen-home', false);
+      showToast('Simulação reiniciada para o estado inicial.', true);
+    }
+
+    // Atualiza relógio
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clockText').textContent =
+        String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+  </script>
+</body>
+</html>
